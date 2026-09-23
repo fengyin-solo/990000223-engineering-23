@@ -118,6 +118,7 @@ The frontend will be available at `http://localhost:5173`
 | PUT | `/api/articles/:id` | Update article | Yes |
 | DELETE | `/api/articles/:id` | Delete article | Yes |
 | GET | `/api/tags` | Get all unique tags | No |
+| GET | `/api/tags/archive` | Download the tag summary archive (tag entries, tag count, full tag list) | No |
 
 ## Admin Credentials
 

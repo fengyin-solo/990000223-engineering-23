@@ -1,8 +1,19 @@
 const express = require('express');
 const { getDb } = require('../db/init');
 const { authenticateToken } = require('../middleware/auth');
+const { refreshTagArchive } = require('../services/tagArchive');
 
 const router = express.Router();
+
+// Refresh the tag archive without letting an archive failure break the
+// request that triggered it.
+function syncTagArchive() {
+  try {
+    refreshTagArchive();
+  } catch (err) {
+    console.error('Failed to refresh tag archive:', err);
+  }
+}
 
 // GET /api/articles - List articles with pagination, tag filter and search
 router.get('/', (req, res) => {
@@ -107,6 +118,7 @@ router.post('/', authenticateToken, (req, res) => {
       ...article,
       tags: article.tags ? article.tags.split(',').map(t => t.trim()) : []
     });
+    syncTagArchive();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to create article' });
@@ -143,6 +155,7 @@ router.put('/:id', authenticateToken, (req, res) => {
       ...article,
       tags: article.tags ? article.tags.split(',').map(t => t.trim()) : []
     });
+    syncTagArchive();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update article' });
@@ -162,6 +175,7 @@ router.delete('/:id', authenticateToken, (req, res) => {
 
     db.prepare('DELETE FROM articles WHERE id = ?').run(id);
     res.json({ message: 'Article deleted successfully' });
+    syncTagArchive();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to delete article' });
@@ -169,24 +183,12 @@ router.delete('/:id', authenticateToken, (req, res) => {
 });
 
 // GET /api/tags - Get all unique tags (exported for use in server.js)
+// Also refreshes the downloadable tag archive, so the summary on disk always
+// matches the tag set that was just returned.
 function getTags(req, res) {
-  const db = getDb();
-
   try {
-    const articles = db.prepare('SELECT tags FROM articles WHERE tags IS NOT NULL AND tags != ""').all();
-    const tagSet = new Set();
-
-    articles.forEach(article => {
-      if (article.tags) {
-        article.tags.split(',').forEach(tag => {
-          const trimmed = tag.trim();
-          if (trimmed) tagSet.add(trimmed);
-        });
-      }
-    });
-
-    const tags = Array.from(tagSet).sort();
-    res.json({ tags });
+    const summary = refreshTagArchive();
+    res.json({ tags: summary.tags });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch tags' });

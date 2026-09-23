@@ -21,6 +21,17 @@
         {{ tag }}
       </el-tag>
     </div>
+    <div class="tag-archive">
+      <span class="tag-count">共 {{ tags.length }} 个标签</span>
+      <el-link
+        type="primary"
+        :underline="false"
+        href="/api/tags/archive"
+        class="archive-link"
+      >
+        下载标签归档
+      </el-link>
+    </div>
   </div>
 </template>
 
@@ -62,5 +73,21 @@ function selectTag(tag) {
 
 .tag-item {
   cursor: pointer;
+}
+
+.tag-archive {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.tag-count {
+  color: #909399;
+}
+
+.archive-link {
+  font-size: 13px;
 }
 </style>

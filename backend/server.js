@@ -23,6 +23,22 @@ app.use('/api/articles', articlesRouter);
 const { getTags } = require('./routes/articles');
 app.get('/api/tags', getTags);
 
+// Downloadable tag archive. The archive is refreshed whenever articles
+// change or the tag list is fetched; here we only make sure it exists and
+// then serve that single stable file, so interrupted downloads can resume
+// against unchanged content.
+const { ARCHIVE_PATH, ensureTagArchive } = require('./services/tagArchive');
+app.get('/api/tags/archive', (req, res) => {
+  try {
+    ensureTagArchive();
+    res.set('Cache-Control', 'no-store');
+    res.download(ARCHIVE_PATH, 'tags-archive.json');
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to generate tag archive' });
+  }
+});
+
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
