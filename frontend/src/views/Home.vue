@@ -32,6 +32,7 @@
       <el-col :span="6">
         <TagFilter
           :tags="tags"
+          :counts="tagCounts"
           :selected-tag="selectedTag"
           @select="handleTagSelect"
         />
@@ -53,6 +54,7 @@ const router = useRouter()
 
 const articles = ref([])
 const tags = ref([])
+const tagCounts = ref({})
 const loading = ref(false)
 const selectedTag = ref(null)
 const searchQuery = ref('')
@@ -128,6 +130,7 @@ async function fetchTags() {
   try {
     const response = await api.get('/tags')
     tags.value = response.data.tags
+    tagCounts.value = response.data.counts || {}
   } catch (error) {
     console.error('Failed to fetch tags:', error)
   }

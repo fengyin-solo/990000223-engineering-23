@@ -103,6 +103,7 @@ The frontend will be available at `http://localhost:5173`
 - **Article Management**: Create, read, update, and delete blog articles
 - **Markdown Support**: Write articles in Markdown with live preview
 - **Tag System**: Organize articles with tags and filter by tags
+- **Tag Archive**: Downloadable JSON snapshot of all tag entries and counts, regenerated atomically over a single fixed file
 - **Pagination**: Navigate through articles with pagination (10 per page)
 - **Admin Panel**: Protected admin area for managing articles
 - **JWT Authentication**: Secure admin login with JSON Web Tokens
@@ -117,7 +118,8 @@ The frontend will be available at `http://localhost:5173`
 | POST | `/api/articles` | Create new article | Yes |
 | PUT | `/api/articles/:id` | Update article | Yes |
 | DELETE | `/api/articles/:id` | Delete article | Yes |
-| GET | `/api/tags` | Get all unique tags | No |
+| GET | `/api/tags` | Get all unique tags with counts and summary | No |
+| GET | `/api/tags/archive` | Download the tag summary archive (JSON snapshot of tag entries, counts and all tags) | No |
 
 ## Admin Credentials
 
